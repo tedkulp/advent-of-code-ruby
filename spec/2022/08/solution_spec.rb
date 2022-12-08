@@ -15,28 +15,22 @@ RSpec.describe Year2022::Day08 do
   end
 
   describe 'part 1' do
-    it 'returns the correct result' do
+    it 'returns the correct test result' do
       expect(described_class.part_1(example_input)).to eq(21)
+    end
+
+    it 'returns the correct real result' do
+      expect(described_class.part_1(input)).to eq(1669)
     end
   end
 
   describe 'part 2' do
-    before do
-      @cls = described_class.new(example_input)
-      @arys = @cls.process_lines2
+    it 'returns the correct test result' do
+      expect(described_class.part_2(example_input)).to eq(8)
     end
 
-    it 'calculates the max length' do
-      expect(@cls.max_length).to eq(5)
+    it 'returns the correct real result' do
+      expect(described_class.part_2(input)).to eq(331_344)
     end
-
-    it 'calculates the scenic score' do
-      expect(@cls.calculate_scenic_score(@arys, [2, 1])).to eq(4)
-      expect(@cls.calculate_scenic_score(@arys, [2, 3])).to eq(8)
-    end
-
-    # it 'returns the correct result' do
-    #   expect(described_class.part_2(example_input)).to eq(8)
-    # end
   end
 end

@@ -1,78 +1,117 @@
 # frozen_string_literal: true
 
 module Year2022
+  class Grid
+    attr_reader :visible_map, :scenic_scores
+
+    def initialize(input)
+      area, visible_map, scenic_scores = parse_input(input)
+
+      @area = area
+      @visible_map = visible_map
+      @scenic_scores = scenic_scores
+    end
+
+    def determine_visibility
+      @area.each_with_index do |row, j|
+        parse_row_visibility j, 0, row.length - 1
+        parse_row_visibility j, row.length - 1, 0
+      end
+
+      (0..(@area.map(&:length).max - 1)).each do |i|
+        parse_column_visibility i, 0, @area.length - 1
+        parse_column_visibility i, @area.length - 1, 0
+      end
+    end
+
+    def determine_scenic_scores
+      i_max = @area.map(&:length).max
+      j_max = @area.length
+
+      (1..(j_max - 2)).each do |j|
+        (1..(i_max - 2)).each do |i|
+          tree = @area[j][i]
+
+          left = @area[j].first(i).reverse
+          right = @area[j].last(i_max - i - 1)
+          up = @area.first(j).map { |row| row[i] }.reverse
+          down = @area.last(j_max - j - 1).map { |row| row[i] }
+
+          directional_scores = [left, right, up, down].map do |direction|
+            return 0 if direction.empty?
+
+            visible_trees = direction.take_while { |t| t < tree }
+            visible_count = visible_trees.length
+
+            [visible_count + 1, direction.length].min
+          end
+
+          @scenic_scores[j][i] = directional_scores.reduce { |a, n| a * n }
+        end
+      end
+    end
+
+    private
+
+    def parse_input(data)
+      area = []
+      visible_map = []
+      scenic_scores = []
+
+      data.each do |row|
+        area << row.chars.map(&:to_i)
+        visible_map << Array.new(row.length).map { false }
+        scenic_scores << Array.new(row.length).map { 0 }
+      end
+
+      [area, visible_map, scenic_scores]
+    end
+
+    def parse_row_visibility(y, from, to)
+      current_max_height = -1
+
+      range = from < to ? from.upto(to) : from.downto(to)
+
+      range.each do |x|
+        current_tree_height = @area[y][x]
+
+        if current_tree_height > current_max_height
+          current_max_height = current_tree_height
+          @visible_map[y][x] = true
+        end
+      end
+    end
+
+    def parse_column_visibility(x, from, to)
+      current_max_height = -1
+
+      range = from < to ? from.upto(to) : from.downto(to)
+
+      range.each do |y|
+        current_tree_height = @area[y][x]
+
+        if current_tree_height > current_max_height
+          current_max_height = current_tree_height
+          @visible_map[y][x] = true
+        end
+      end
+    end
+  end
+
   class Day08 < Solution
     # @input is available if you need the raw data input
     # Call `data` to access either an array of the parsed data, or a single record for a 1-line input file
 
     def part_1
-      transpose(process_lines).map do |line|
-        tree_idx = -1
-        line.select do |tree|
-          tree_idx += 1
-
-          next true if tree_idx.zero? || tree_idx == line.length - 1
-
-          line[0..tree_idx - 1].all? { |ln| ln.last < tree.last } ||
-            line[tree_idx + 1..].all? { |ln| ln.last < tree.last }
-        end
-      end.flatten(1).uniq { |el| "#{el[0]},#{el[1]}" }.length
+      grid = Grid.new(data)
+      grid.determine_visibility
+      grid.visible_map.flatten.count { |tree| tree }
     end
 
     def part_2
-      arys = process_lines2
-      arys.keys.map { |pos| calculate_scenic_score(arys, pos) }.max
-    end
-
-    def calculate_scenic_score(arys, pos)
-      cur_x, cur_y = pos
-      target_height = arys[pos]
-
-      dir1 = (0..cur_x - 1).to_a.reverse.map { |x| [x, cur_y] }
-      dir2 = (cur_x + 1..max_length - 1).to_a.map { |x| [x, cur_y] }
-      dir3 = (0..cur_y - 1).to_a.reverse.map { |y| [cur_x, y] }
-      dir4 = (cur_y + 1..max_length - 1).to_a.map { |y| [cur_x, y] }
-
-      calculate_line_of_sight(arys, dir1, target_height) *
-        calculate_line_of_sight(arys, dir2, target_height) *
-        calculate_line_of_sight(arys, dir3, target_height) *
-        calculate_line_of_sight(arys, dir4, target_height)
-    end
-
-    def calculate_line_of_sight(arys, dir, target_height)
-      [dir.take_while { |t| arys[t] < target_height }.length + 1, dir.length].min
-    end
-
-    def process_lines2
-      return @trees if @trees
-
-      trees = {}
-      data
-        .each_with_index do |line, y|
-          line.split(//).map(&:to_i).each_with_index do |v, x|
-            trees[[x, y]] = v
-          end
-        end
-      @trees = trees
-      @trees
-    end
-
-    def max_length
-      transpose(process_lines).map(&:length).max
-    end
-
-    def transpose(arys)
-      arys + arys.transpose
-    end
-
-    def process_lines
-      data
-        .enum_for(:each_with_index)
-        .map do |line, idx|
-          line.split(//).map(&:to_i).enum_for(:each_with_index).map do |v, idx2|
-            [idx, idx2, v]
-          end
-        end
+      grid = Grid.new(data)
+      grid.determine_scenic_scores
+      grid.scenic_scores.flatten.max
     end
   end
 end
