@@ -19,7 +19,7 @@ RSpec.describe Year2022::Rope do
         end
 
         it 'covers itself up when going the opposite dir' do
-          @rope = described_class.new([0, 0], [1, 0])
+          @rope = described_class.new(head_pos: [0, 0], tail_pos: [1, 0])
 
           @rope.move_right(1)
           expect(@rope.tail).to eq([1, 0])
@@ -27,19 +27,19 @@ RSpec.describe Year2022::Rope do
 
         describe 'diagonals' do
           it 'handles the easy case' do
-            @rope = described_class.new([1, 1], [0, 0])
+            @rope = described_class.new(head_pos: [1, 1], tail_pos: [0, 0])
 
             @rope.move_right(1)
             expect(@rope.tail).to eq([1, 1])
 
-            @rope = described_class.new([1, 1], [0, 2])
+            @rope = described_class.new(head_pos: [1, 1], tail_pos: [0, 2])
 
             @rope.move_right(1)
             expect(@rope.tail).to eq([1, 1])
           end
 
           it 'handles multiple moves' do
-            @rope = described_class.new([1, 1], [0, 0])
+            @rope = described_class.new(head_pos: [1, 1], tail_pos: [0, 0])
 
             @rope.move_right(3)
             expect(@rope.tail).to eq([3, 1])
@@ -47,12 +47,12 @@ RSpec.describe Year2022::Rope do
           end
 
           it 'handles to tough case' do
-            @rope = described_class.new([0, 1], [0, 0])
+            @rope = described_class.new(head_pos: [0, 1], tail_pos: [0, 0])
 
             @rope.move_right(1)
             expect(@rope.tail).to eq([0, 0])
 
-            @rope = described_class.new([0, 1], [0, 0])
+            @rope = described_class.new(head_pos: [0, 1], tail_pos: [0, 0])
 
             @rope.move_right(3)
             expect(@rope.tail).to eq([2, 1])
@@ -75,7 +75,7 @@ RSpec.describe Year2022::Rope do
         end
 
         it 'covers itself up when going the opposite dir' do
-          @rope = described_class.new([0, 0], [-1, 0])
+          @rope = described_class.new(head_pos: [0, 0], tail_pos: [-1, 0])
 
           @rope.move_left(1)
           expect(@rope.tail).to eq([-1, 0])
@@ -83,19 +83,19 @@ RSpec.describe Year2022::Rope do
 
         describe 'diagonals' do
           it 'handles the easy case' do
-            @rope = described_class.new([-1, 1], [0, 0])
+            @rope = described_class.new(head_pos: [-1, 1], tail_pos: [0, 0])
 
             @rope.move_left(1)
             expect(@rope.tail).to eq([-1, 1])
 
-            @rope = described_class.new([-1, 1], [0, 2])
+            @rope = described_class.new(head_pos: [-1, 1], tail_pos: [0, 2])
 
             @rope.move_left(1)
             expect(@rope.tail).to eq([-1, 1])
           end
 
           it 'handles to tough case' do
-            @rope = described_class.new([0, 1], [0, 0])
+            @rope = described_class.new(head_pos: [0, 1], tail_pos: [0, 0])
 
             @rope.move_left(1)
             expect(@rope.tail).to eq([0, 0])
@@ -117,7 +117,7 @@ RSpec.describe Year2022::Rope do
         end
 
         it 'covers itself up when going the opposite dir' do
-          @rope = described_class.new([0, 0], [0, 1])
+          @rope = described_class.new(head_pos: [0, 0], tail_pos: [0, 1])
 
           @rope.move_up(1)
           expect(@rope.tail).to eq([0, 1])
@@ -125,19 +125,19 @@ RSpec.describe Year2022::Rope do
 
         describe 'diagonals' do
           it 'handles the easy case' do
-            @rope = described_class.new([1, 1], [0, 0])
+            @rope = described_class.new(head_pos: [1, 1], tail_pos: [0, 0])
 
             @rope.move_up(1)
             expect(@rope.tail).to eq([1, 1])
 
-            @rope = described_class.new([1, 1], [2, 0])
+            @rope = described_class.new(head_pos: [1, 1], tail_pos: [2, 0])
 
             @rope.move_up(1)
             expect(@rope.tail).to eq([1, 1])
           end
 
           it 'handles to tough case' do
-            @rope = described_class.new([0, -1], [0, 0])
+            @rope = described_class.new(head_pos: [0, -1], tail_pos: [0, 0])
 
             @rope.move_up(1)
             expect(@rope.tail).to eq([0, 0])
@@ -159,7 +159,7 @@ RSpec.describe Year2022::Rope do
         end
 
         it 'covers itself up when going the opposite dir' do
-          @rope = described_class.new([0, 0], [0, -1])
+          @rope = described_class.new(head_pos: [0, 0], tail_pos: [0, -1])
 
           @rope.move_down(1)
           expect(@rope.tail).to eq([0, -1])
@@ -167,19 +167,19 @@ RSpec.describe Year2022::Rope do
 
         describe 'diagonals' do
           it 'handles the easy case' do
-            @rope = described_class.new([1, -1], [0, 0])
+            @rope = described_class.new(head_pos: [1, -1], tail_pos: [0, 0])
 
             @rope.move_down(1)
             expect(@rope.tail).to eq([1, -1])
 
-            @rope = described_class.new([1, -1], [0, 0])
+            @rope = described_class.new(head_pos: [1, -1], tail_pos: [0, 0])
 
             @rope.move_down(1)
             expect(@rope.tail).to eq([1, -1])
           end
 
           it 'handles to tough case' do
-            @rope = described_class.new([0, 1], [0, 0])
+            @rope = described_class.new(head_pos: [0, 1], tail_pos: [0, 0])
 
             @rope.move_down(1)
             expect(@rope.tail).to eq([0, 0])
@@ -189,7 +189,7 @@ RSpec.describe Year2022::Rope do
 
       describe 'corner cases (literally)' do
         it 'handles multiple moves where tail should stay put' do
-          @rope = described_class.new([0, 0], [1, 0])
+          @rope = described_class.new(head_pos: [0, 0], tail_pos: [1, 0])
 
           @rope.move_down(1)
           expect(@rope.tail).to eq([1, 0])
@@ -225,6 +225,18 @@ RSpec.describe Year2022::Day09 do
       R 2
     EOF
   end
+  let(:example_input_2) do
+    <<~EOF
+      R 5
+      U 8
+      L 8
+      D 3
+      R 17
+      D 10
+      L 25
+      U 20
+    EOF
+  end
 
   describe 'part 1' do
     it 'returns the correct result' do
@@ -237,12 +249,12 @@ RSpec.describe Year2022::Day09 do
   end
 
   describe 'part 2' do
-    it 'returns nil for the example input' do
-      expect(described_class.part_2(example_input)).to eq(nil)
+    it 'returns the correct result' do
+      expect(described_class.part_2(example_input_2)).to eq(36)
     end
 
-    it 'returns nil for my input' do
-      expect(described_class.part_2(input)).to eq(nil)
+    it 'returns the correct real result' do
+      expect(described_class.part_2(input)).to eq(2434)
     end
   end
 end

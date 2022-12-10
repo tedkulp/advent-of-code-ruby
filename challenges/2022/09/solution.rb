@@ -1,14 +1,25 @@
 # frozen_string_literal: true
 
+require 'set'
+
 module Year2022
   class Rope
-    attr_reader :head, :tail, :tail_position_list, :head_position_list
+    attr_reader :head, :tail, :tail_position_list
 
-    def initialize(head_pos = [0, 0], tail_pos = [0, 0])
-      @head = head_pos
-      @tail = tail_pos
-      @head_position_list = [head_pos.dup]
-      @tail_position_list = [tail_pos.dup]
+    def initialize(head_pos: [0, 0], tail_pos: [0, 0], size: 2)
+      @knots = Array.new(size).map { head_pos.dup }
+      @last_idx = size - 1
+      @knots[@last_idx] = tail_pos
+      @tail_position_list = Set.new
+      @tail_position_list << @knots.last.dup
+    end
+
+    def head
+      @knots.first
+    end
+
+    def tail
+      @knots.last
     end
 
     def make_moves(data)
@@ -31,61 +42,55 @@ module Year2022
 
     def move_up(count)
       1.upto(count).each do
-        head_x, head_y = @head
-
-        @head = [head_x, head_y + 1]
-        @head_position_list << @head
-
-        move_tail([head_x, head_y], @head)
+        move_tail([0, 1])
       end
     end
 
     def move_down(count)
       1.upto(count).each do
-        head_x, head_y = @head
-
-        @head = [head_x, head_y - 1]
-        @head_position_list << @head
-
-        move_tail([head_x, head_y], @head)
+        move_tail([0, -1])
       end
     end
 
     def move_left(count)
       1.upto(count).each do
-        head_x, head_y = @head
-
-        @head = [head_x - 1, head_y]
-        @head_position_list << @head
-
-        move_tail([head_x, head_y], @head)
+        move_tail([-1, 0])
       end
     end
 
     def move_right(count)
       1.upto(count).each do
-        head_x, head_y = @head
-
-        @head = [head_x + 1, head_y]
-        @head_position_list << @head
-
-        move_tail([head_x, head_y], @head)
+        move_tail([1, 0])
       end
     end
 
     private
 
-    def diff(a, b)
-      (a - b).abs
+    def should_move?(head, tail)
+      dist = [head.first - tail.first, head.last - tail.last].map(&:abs)
+      dist.first > 1 || dist.last > 1 || dist.sum > 2
     end
 
-    def move_tail(old_head_pos, new_head_pos)
-      old_head_x, old_head_y = old_head_pos
-      tail_x, tail_y = @tail
+    def move_tail(transform)
+      @knots.each_with_index do |h, idx|
+        next if idx == @knots.length - 1
 
-      @tail = [old_head_x, old_head_y] if diff(new_head_pos.first, tail_x) > 1 || diff(new_head_pos.last, tail_y) > 1
+        h = @knots[idx]
+        t = @knots[idx + 1]
 
-      @tail_position_list << @tail unless tail_x == @tail.first && tail_y == @tail.last
+        if idx.zero?
+          _h = h.zip(transform).map { |m, n| m + n }
+          h[0] = _h[0]
+          h[1] = _h[1]
+        end
+
+        next unless should_move?(h, t)
+
+        t[0] = t[0] + ((h[0] - t[0]) / (h[0] - t[0]).abs) if h[0] != t[0]
+        t[1] = t[1] + ((h[1] - t[1]) / (h[1] - t[1]).abs) if h[1] != t[1]
+      end
+
+      @tail_position_list << @knots.last.dup
     end
   end
 
@@ -100,7 +105,9 @@ module Year2022
     end
 
     def part_2
-      nil
+      rope = Rope.new(size: 10)
+      rope.make_moves(data)
+      rope.tail_position_list.uniq { |(a, b)| [a, b].join(',') }.length
     end
   end
 end
