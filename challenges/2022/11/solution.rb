@@ -12,8 +12,9 @@ module Year2022
   class Barrel
     attr_reader :monkeys, :data, :round
 
-    def initialize(input)
+    def initialize(input, do_they_get_bored = true)
       @round = 1
+      @do_they_get_bored = do_they_get_bored
       @data = input
               .lines(chomp: true)
               .map(&:lstrip)
@@ -40,6 +41,10 @@ module Year2022
       end
     end
 
+    def cycle_length
+      @cycle_length ||= @monkeys.map(&:test_divisor).inject(&:*)
+    end
+
     def inspect_counts
       @monkeys.map(&:items_inspected)
     end
@@ -48,7 +53,7 @@ module Year2022
 
     def parse
       @monkeys = @data.map do |input|
-        mon = Monkey.new
+        mon = Monkey.new(self, @do_they_get_bored)
 
         input.each do |ln|
           case ln
@@ -78,8 +83,10 @@ module Year2022
     attr_accessor :operation, :test_divisor, :true_case, :false_case, :items
     attr_reader :items_inspected
 
-    def initialize
+    def initialize(barrel = nil, do_i_get_bored = true)
       @items_inspected = 0
+      @barrel = barrel
+      @do_i_get_bored = do_i_get_bored
     end
 
     def empty_handed?
@@ -123,8 +130,12 @@ module Year2022
       end
     end
 
-    def get_bored(item)
-      (item.to_f / 3).floor
+    def get_bored(worry_val)
+      if @do_i_get_bored || @barrel.nil?
+        (worry_val.to_f / 3).floor
+      else
+        worry_val.modulo(@barrel.cycle_length)
+      end
     end
 
     def is_worried?(item)
@@ -144,7 +155,13 @@ module Year2022
     end
 
     def part_2
-      nil
+      barrel = Barrel.new(@input, false)
+      barrel.run(10_000)
+      barrel.inspect_counts
+            .sort
+            .reverse
+            .take(2)
+            .inject(&:*)
     end
 
     # Processes each line of the input file and stores the result in the dataset
