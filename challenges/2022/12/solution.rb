@@ -19,7 +19,7 @@ module Year2022
       x == other.x && y == other.y
     end
 
-    def get_next_nodes
+    def next_nodes
       @map.get_next_points(@x, @y)
     end
 
@@ -68,34 +68,40 @@ module Year2022
       node1.height < node2.height ? 1 : 0
     end
 
-    def shortest_path
-      came_from = {}
-      came_from[start] = nil
-      points_to_access = Queue.new
-      points_to_access << start
+    def shortest_path(all_points = false)
+      start_points = all_points ? lowest_elevation_points : [start]
 
-      until points_to_access.empty?
-        current = points_to_access.pop
+      paths = start_points.map do |start_point|
+        came_from = {}
+        came_from[start_point] = nil
+        points_to_access = Queue.new
+        points_to_access << start_point
 
-        break if current.nil? || current == finish
+        until points_to_access.empty?
+          current = points_to_access.pop
 
-        get_next_points(current.x, current.y).each do |adjacent_node|
-          unless came_from.include? adjacent_node
-            points_to_access << adjacent_node
-            came_from[adjacent_node] = current
+          break if current.nil? || current == finish
+
+          current.next_nodes.each do |adjacent_node|
+            unless came_from.include? adjacent_node
+              points_to_access << adjacent_node
+              came_from[adjacent_node] = current
+            end
           end
         end
-      end
 
-      current = finish
-      path = []
+        next if current != finish
 
-      while current.pos != start.pos
-        path << current
-        current = came_from[current]
-      end
+        current = finish
+        path = []
 
-      path
+        while current.pos != start_point.pos
+          path << current
+          current = came_from[current]
+        end
+
+        path
+      end.reject(&:nil?).min_by(&:length)
     end
 
     def elevation_at_point(x, y)
@@ -130,29 +136,21 @@ module Year2022
         @data[dy][dx]
       end
     end
+
+    def lowest_elevation_points
+      get_all_nodes.filter { |n| n.height === 0 }
+    end
   end
 
   class Day12 < Solution
-    # @input is available if you need the raw data input
-    # Call `data` to access either an array of the parsed data, or a single record for a 1-line input file
-
     def part_1
       map = HeightMap.new(data)
       map.shortest_path.length
     end
 
     def part_2
-      nil
+      map = HeightMap.new(data)
+      map.shortest_path(true).length
     end
-
-    # Processes each line of the input file and stores the result in the dataset
-    # def process_input(line)
-    #   line.map(&:to_i)
-    # end
-
-    # Processes the dataset as a whole
-    # def process_dataset(set)
-    #   set
-    # end
   end
 end
