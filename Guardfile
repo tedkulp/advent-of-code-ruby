@@ -22,5 +22,5 @@
 #   watch(/(.*).txt/) {|m| `tail #{m[0]}` }
 # end
 guard :shell do
-  watch(%r{^*\.rb}) { `bundle exec rspec spec/2022/11` }
+  watch(%r{^*\.rb}) { `bundle exec rspec spec/2022/12` }
 end
