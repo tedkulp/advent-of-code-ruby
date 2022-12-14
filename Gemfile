@@ -7,3 +7,4 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 gem 'aoc_rb'
 gem 'guard'
 gem 'guard-shell'
+gem 'json'

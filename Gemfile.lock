@@ -28,6 +28,7 @@ GEM
     httparty (0.20.0)
       mime-types (~> 3.0)
       multi_xml (>= 0.5.2)
+    json (2.6.3)
     listen (3.7.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -73,6 +74,7 @@ DEPENDENCIES
   aoc_rb
   guard
   guard-shell
+  json
 
 BUNDLED WITH
    2.3.7
