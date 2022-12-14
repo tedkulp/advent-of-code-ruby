@@ -45,42 +45,42 @@ RSpec.describe Year2022::Day13 do
 
   describe 'pairs' do
     it 'handles case 1' do
-      expect(described_class.order_of([1, 1, 3, 1, 1], [1, 1, 5, 1, 1])).to eq :left_smaller
+      expect(described_class.in_correct_order?([1, 1, 3, 1, 1], [1, 1, 5, 1, 1])).to be true
     end
 
     it 'handles case 2' do
-      expect(described_class.order_of([[1], [2, 3, 4]], [[1], 4])).to eq :left_smaller
+      expect(described_class.in_correct_order?([[1], [2, 3, 4]], [[1], 4])).to be true
     end
 
     it 'handles case 3' do
-      expect(described_class.order_of([9], [[8, 7, 6]])).to eq :right_smaller
+      expect(described_class.in_correct_order?([9], [[8, 7, 6]])).to be false
     end
 
     it 'handles case 4' do
-      expect(described_class.order_of([[4, 4], 4, 4], [[4, 4], 4, 4, 4])).to eq :left_ran_out
+      expect(described_class.in_correct_order?([[4, 4], 4, 4], [[4, 4], 4, 4, 4])).to be true
     end
 
     it 'handles case 5' do
-      expect(described_class.order_of([7, 7, 7, 7], [7, 7, 7])).to eq :right_ran_out
+      expect(described_class.in_correct_order?([7, 7, 7, 7], [7, 7, 7])).to be false
     end
 
     it 'handles case 6' do
-      expect(described_class.order_of([], [3])).to eq :left_ran_out
+      expect(described_class.in_correct_order?([], [3])).to be true
     end
 
     it 'handles case 7' do
-      expect(described_class.order_of([[[]]], [[]])).to eq :right_ran_out
+      expect(described_class.in_correct_order?([[[]]], [[]])).to be false
     end
 
     it 'handles case 8' do
-      expect(described_class.order_of([1, [2, [3, [4, [5, 6, 7]]]], 8, 9],
-                                      [1, [2, [3, [4, [5, 6, 0]]]], 8, 9])).to eq :right_smaller
+      expect(described_class.in_correct_order?([1, [2, [3, [4, [5, 6, 7]]]], 8, 9],
+                                               [1, [2, [3, [4, [5, 6, 0]]]], 8, 9])).to be false
     end
 
     it 'handles all equal' do
-      expect(described_class.order_of([1, 1, 1, 1, 1], [1, 1, 1, 1, 1])).to eq :equal
-      expect(described_class.order_of([1, 1, [1, 1], 1, 1], [1, 1, [1, 1], 1, 1])).to eq :equal
-      expect(described_class.order_of([1, 1, [], 1, 1], [1, 1, [], 1, 1])).to eq :equal
+      expect(described_class.in_correct_order?([1, 1, 1, 1, 1], [1, 1, 1, 1, 1])).to be false
+      expect(described_class.in_correct_order?([1, 1, [1, 1], 1, 1], [1, 1, [1, 1], 1, 1])).to be false
+      expect(described_class.in_correct_order?([1, 1, [], 1, 1], [1, 1, [], 1, 1])).to be false
     end
   end
 
@@ -100,7 +100,7 @@ RSpec.describe Year2022::Day13 do
     end
 
     it 'returns correct for real input' do
-      expect(described_class.part_2(input)).to eq(nil)
+      expect(described_class.part_2(input)).to eq(20_383)
     end
   end
 end
