@@ -19,6 +19,10 @@ module Year2022
       @y = y
     end
 
+    def pos
+      "#{x},#{y}"
+    end
+
     def eql?(other)
       other = other.dup
       x == other.x && y == other.y
@@ -68,15 +72,30 @@ module Year2022
   class Cave
     attr_reader :rocks
 
-    def initialize(rocks)
-      @sand = Set.new
+    def initialize(rocks: [], add_floor: false)
       @rocks = Set.new(rocks.flatten(1))
       @start_point = [500, 0]
+
+      self.add_floor if add_floor
+
+      b = bounds.dup
+      @grid = Array.new(b[3] + 10) { Array.new(bounds[1] + 10) }
+
+      @rocks.each do |rock|
+        @grid[rock.y][rock.x] = rock
+      end
     end
 
     def bounds
       [@rocks.map(&:x).minmax,
        @rocks.map(&:y).minmax].flatten
+    end
+
+    def add_floor
+      b = bounds.dup
+      add_amt = 250
+
+      ((b[0] - add_amt)..(b[1] + add_amt)).each { |x| rocks << Rock.new(x, b[3] + 2) }
     end
 
     def draw
@@ -94,11 +113,11 @@ module Year2022
     end
 
     def rock_here?(x, y)
-      @rocks.any? { |rock| rock.x == x && rock.y == y }
+      !!rock_at(x, y)
     end
 
     def sand_here?(x, y)
-      @sand.any? { |sand| sand.x == x && sand.y == y }
+      !!sand_at(x, y)
     end
 
     def matter_here?(x, y)
@@ -106,11 +125,13 @@ module Year2022
     end
 
     def sand_at(x, y)
-      @sand.find { |sand| sand.x == x && sand.y == y }
+      obj = @grid[y][x]
+      obj && obj.is_a?(Sandball) && obj
     end
 
     def rock_at(x, y)
-      @rocks.find { |rock| rock.x == x && rock.y == y }
+      obj = @grid[y][x]
+      obj && obj.is_a?(Rock) && obj
     end
 
     def matter_at(x, y)
@@ -121,20 +142,30 @@ module Year2022
       y > (bounds[3] + 1)
     end
 
+    def no_space_left?(y)
+      y.zero?
+    end
+
     def run
+      count = 0
       loop do
         current_ball = Sandball.new(*@start_point, self)
-        @sand << current_ball
 
         loop do
           y = current_ball.move
-          break if !y || too_far?(y)
+          break if !y || too_far?(y) || no_space_left?(y)
         end
 
         break if too_far?(current_ball.y)
+
+        count += 1
+        p ['count', count]
+        @grid[current_ball.y][current_ball.x] = current_ball
+
+        break if no_space_left?(current_ball.y)
       end
 
-      @sand.length - 1
+      count
     end
   end
 
@@ -143,14 +174,17 @@ module Year2022
     # Call `data` to access either an array of the parsed data, or a single record for a 1-line input file
 
     def part_1
-      cave = Cave.new(data)
+      cave = Cave.new(rocks: data)
       ans = cave.run
       cave.draw
       ans
     end
 
     def part_2
-      nil
+      cave = Cave.new(rocks: data, add_floor: true)
+      ans = cave.run
+      cave.draw
+      ans
     end
 
     # Processes each line of the input file and stores the result in the dataset
